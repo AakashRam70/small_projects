@@ -1,59 +1,64 @@
-import React, { useState } from 'react'
-import data from './data';
+import { useState } from "react";
+import data from "./data"; // Make sure this path is correct
 import './styles.css'
 
-const Accordian = () => {
-
-    const [selected, setSelected] = useState(null)
+export default function Accordian() {
+    const [selected, setSelected] = useState(null);
     const [enableMultiSelection, setEnableMultiSelection] = useState(false)
-    const [multiple, setMultiple] = useState([])
+    const [multipe, setMultiple] = useState([])
 
     function handleSingleSelection(getCurrentId) {
+        // Logic for handling selection
         setSelected(getCurrentId === selected ? null : getCurrentId);
     }
 
-    function handleMultiSelection(getCurrentId) {
-        let copystate = [...multiple];
-        const findIndexofCurrentId
-            = copystate.indexOf(getCurrentId);
+    function handleMultipleSelection(getCurrentId) {
+        let copy = [...multipe];
+        const findIndexOfCurrentId = copy.indexOf(getCurrentId)
+        console.log(findIndexOfCurrentId)
+        if (findIndexOfCurrentId === -1) {
+            copy.push(getCurrentId)
+        } else {
+            copy.splice(findIndexOfCurrentId, 1)
+        }
 
-        if (findIndexofCurrentId === -1) copystate.push(getCurrentId)
-        else copystate.splice(findIndexofCurrentId, 1)
-
-        setMultiple(copystate);
+        setMultiple(copy);
     }
 
-    console.log(selected, multiple)
-
+    console.log(selected, multipe);
     return (
-        <div className='wrapper'>
-            <button onClick={() => setEnableMultiSelection(!enableMultiSelection)}>Enable Multi Selection</button>
+        <div className="wrapper">
+            <div onClick={() => setEnableMultiSelection(!enableMultiSelection)} className="multi">
+                Multiple Selection
+            </div>
             <div className="accordian">
                 {
-                    data && data.length > 0 ?
-                        data.map(dataItem => (
-                            <div className='item'>
-                                <div onClick={handleMultiSelection ? () =>
-
-                                    handleMultiSelection(dataItem.id) :
-                                    handleSingleSelection(dataItem.id)} className='title'>
-                                    <h3>{dataItem.questions}</h3>
+                    data && data.length > 0 ? (  // Corrected the spelling of 'length'
+                        data.map((dataItem) => (
+                            <div
+                                key={dataItem.id} // Adding key for each item
+                                onClick={enableMultiSelection ? () => handleMultipleSelection(dataItem.id) : () => handleSingleSelection(dataItem.id)}
+                                className="item"
+                            >
+                                <div className="title">
+                                    <h3>{dataItem.questions}</h3> {/* Ensure this matches your data structure */}
                                     <span>+</span>
                                 </div>
-                                <div className='content'>
-                                    {
-                                        selected === dataItem.id ? <div>{dataItem.answer}</div> : null
-                                    }
-                                </div>
+                                {
+                                    enableMultiSelection ? multipe.indexOf(dataItem.id) !== -1 && <div className="content">{dataItem.answer}</div> : selected === dataItem.id && <div className="content">{dataItem.answer}</div>
+                                }
+                                {/* {
+                                    selected === dataItem.id || multipe.indexOf(dataItem.id) !== -1 ? (
+                                        <div className="content">{dataItem.answer}</div>
+                                    ) : (null)
+                                } */}
                             </div>
-
                         ))
-                        :
-                        <div>Data Not Found</div>
+                    ) : (
+                        <div>Not Found</div>
+                    )
                 }
             </div>
         </div>
     )
 }
-
-export default Accordian;
